@@ -313,7 +313,12 @@ class TelemetryWrapper: TelemetryWrapperProtocol,
         }
 
         let startAtHomeOption = userPreferences.startAtHomeSetting
-        GleanMetrics.Preferences.openingScreen.set(startAtHomeOption.rawValue)
+        // "Homepage, closing all previous tabs" is stored as `always` plus the close tabs on launch pref
+        let isClosingAllPreviousTabs = startAtHomeOption == .always
+            && (prefs.boolForKey(PrefsKeys.Settings.closeTabsOnLaunch) ?? false)
+        GleanMetrics.Preferences.openingScreen.set(
+            isClosingAllPreviousTabs ? "alwaysClosingTabs" : startAtHomeOption.rawValue
+        )
 
         // Record summarizer user preferences
         let summarizerNimbusUtils = DefaultSummarizerNimbusUtils()

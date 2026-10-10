@@ -38,6 +38,7 @@ class MockTabManager: TabManager {
     var removeTabsByURLCalled = 0
 
     var addTabWasCalled = false
+    var lastAddTabRequest: URLRequest?
     var notifyCurrentTabDidFinishLoadingCalled = 0
     var commitChangesCalled = 0
     var selectTabExpectation: XCTestExpectation?
@@ -136,6 +137,7 @@ class MockTabManager: TabManager {
                 isPrivate: Bool
     ) -> Tab {
         addTabWasCalled = true
+        lastAddTabRequest = request
         let isHomePage = request?.url?.absoluteString == "internal://local/about/home"
         return MockTab(
             profile: MockProfile.unmanaged(),

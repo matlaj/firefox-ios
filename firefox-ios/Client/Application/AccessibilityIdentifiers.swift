@@ -572,6 +572,7 @@ struct AccessibilityIdentifiers {
                 static let afterFourHours = "StartAtHomeAfterFourHours"
                 static let always = "StartAtHomeAlways"
                 static let disabled = "StartAtHomeDisabled"
+                static let alwaysClosingTabs = "StartAtHomeAlwaysClosingTabs"
             }
 
             struct CustomizeFirefox {

@@ -27,12 +27,14 @@ final class DefaultTabRestorer: TabRestorer {
     private let shouldClearPrivateTabs: Bool
     private let logger: Logger
     private let windowIsNew: Bool
+    private let shouldClearAllTabs: Bool
 
     init(
         delegate: TabRestorerDelegate,
         tabDataStore: TabDataStore,
         shouldClearPrivateTabs: Bool,
         windowIsNew: Bool,
+        shouldClearAllTabs: Bool = false,
         logger: Logger = DefaultLogger.shared
     ) {
         self.delegate = delegate
@@ -40,9 +42,15 @@ final class DefaultTabRestorer: TabRestorer {
         self.shouldClearPrivateTabs = shouldClearPrivateTabs
         self.logger = logger
         self.windowIsNew = windowIsNew
+        self.shouldClearAllTabs = shouldClearAllTabs
     }
 
     func restoreTabs(for windowUUID: WindowUUID) async -> TabRestorationResult {
+        guard !shouldClearAllTabs else {
+            logger.log("Not restoring tabs: close tabs on launch enabled", level: .info, category: .tabs)
+            return TabRestorationResult(restoredTabs: [], selectedTabUUID: nil, windowUUID: windowUUID)
+        }
+
         // Only attempt a tab data store fetch if we know we should have tabs on disk (ignore new windows)
         let windowData: WindowData? = windowIsNew ? nil : await tabDataStore.fetchWindowData(uuid: windowUUID)
         return buildResult(from: windowData, windowUUID: windowUUID)

@@ -11,6 +11,7 @@ protocol SettingsHomepageSelectorsSet {
     var START_AT_HOME_ALWAYS: Selector { get }
     var START_AT_HOME_DISABLED: Selector { get }
     var START_AT_HOME_AFTER_4H: Selector { get }
+    var START_AT_HOME_ALWAYS_CLOSING_TABS: Selector { get }
     var STORIES_SWITCH: Selector { get }
     var HOME_AS_FIREFOX_HOME: Selector { get }
     var HOME_AS_CUSTOM_URL: Selector { get }
@@ -23,6 +24,7 @@ struct SettingsHomepageSelectors: SettingsHomepageSelectorsSet {
         static let always          = AccessibilityIdentifiers.Settings.Homepage.StartAtHome.always
         static let disabled        = AccessibilityIdentifiers.Settings.Homepage.StartAtHome.disabled
         static let afterFourHours  = AccessibilityIdentifiers.Settings.Homepage.StartAtHome.afterFourHours
+        static let alwaysClosingTabs = AccessibilityIdentifiers.Settings.Homepage.StartAtHome.alwaysClosingTabs
         // Mirrors PrefsKeys.UserFeatureFlagPrefs.ASPocketStories, used as the switch identifier
         static let storiesSwitch   = "ASPocketStoriesUserPrefsKey"
         static let firefoxHome     = "HomeAsFirefoxHome"
@@ -60,6 +62,12 @@ struct SettingsHomepageSelectors: SettingsHomepageSelectorsSet {
     let START_AT_HOME_ALWAYS = Selector.tableCellById(
         IDs.always,
         description: "Start at Home: Always cell",
+        groups: ["settings", "homepage"]
+    )
+
+    let START_AT_HOME_ALWAYS_CLOSING_TABS = Selector.tableCellById(
+        IDs.alwaysClosingTabs,
+        description: "Start at Home: Always, closing all previous tabs cell",
         groups: ["settings", "homepage"]
     )
 
@@ -101,6 +109,7 @@ struct SettingsHomepageSelectors: SettingsHomepageSelectorsSet {
             CURRENT_HOMEPAGE_SECTION,
             START_AT_HOME_ALWAYS,
             START_AT_HOME_DISABLED,
+            START_AT_HOME_ALWAYS_CLOSING_TABS,
             START_AT_HOME_AFTER_4H,
             STORIES_SWITCH,
             HOME_AS_FIREFOX_HOME,

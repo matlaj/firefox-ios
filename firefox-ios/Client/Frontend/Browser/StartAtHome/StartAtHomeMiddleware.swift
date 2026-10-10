@@ -12,15 +12,18 @@ final class StartAtHomeMiddleware {
     private let logger: Logger
     private let prefs: Prefs
     private let dateProvider: DateProvider
+    private let homepageTabProvider: HomepageTabProviding
 
     init(profile: Profile = AppContainer.shared.resolve(),
          windowManager: WindowManager = AppContainer.shared.resolve(),
          logger: Logger = DefaultLogger.shared,
-         dateProvider: DateProvider = SystemDateProvider()) {
+         dateProvider: DateProvider = SystemDateProvider(),
+         homepageTabProvider: HomepageTabProviding? = nil) {
         self.windowManager = windowManager
         self.logger = logger
         self.prefs = profile.prefs
         self.dateProvider = dateProvider
+        self.homepageTabProvider = homepageTabProvider ?? DefaultHomepageTabProvider(prefs: profile.prefs)
     }
 
     lazy var startAtHomeProvider: Middleware<AppState> = (legacyProvider, modernProvider)
@@ -67,10 +70,9 @@ final class StartAtHomeMiddleware {
             let scannableTabs = wasLastSessionPrivate ? tabManager.privateTabs : tabManager.normalTabs
             let existingHomeTab = startAtHomeManager.scanForExistingHomeTab(in: scannableTabs,
                                                                             with: prefs)
-            let tabToSelect = createStartAtHomeTab(tabManager: tabManager,
-                                                   withExistingTab: existingHomeTab,
-                                                   inPrivateMode: wasLastSessionPrivate,
-                                                   and: prefs)
+            let tabToSelect = homepageTabProvider.homepageTab(in: tabManager,
+                                                              reusing: existingHomeTab,
+                                                              isPrivate: wasLastSessionPrivate)
 
             logger.log("Start at home triggered with last session private \(wasLastSessionPrivate)",
                        level: .debug,
@@ -79,37 +81,5 @@ final class StartAtHomeMiddleware {
             return true
         }
         return false
-    }
-
-    /// Determines the appropriate page to load based on user preferences and whether
-    /// a suitable tab already exists. It supports loading a custom URL homepage,
-    /// the default Firefox homepage (i.e. topSites),
-    /// or falling back to the selected tab or a new one if necessary.
-    ///
-    /// - Parameters:
-    ///   - existingTab: An optional existing tab that may be reused.
-    ///   - privateMode: A Boolean indicating whether the tab is in private mode.
-    ///   - profilePreferences: The user's profile preferences.
-    /// - Returns: A tab configured to show the appropriate homepage content.
-    @MainActor
-    private func createStartAtHomeTab(tabManager: TabManager,
-                                      withExistingTab existingTab: Tab?,
-                                      inPrivateMode privateMode: Bool,
-                                      and profilePreferences: Prefs
-    ) -> Tab? {
-        let newTabPage = NewTabAccessors.getHomePage(profilePreferences)
-        let customHomepageUrl = HomeButtonHomePageAccessors.getHomePage(profilePreferences)
-        let homeUrl = URL(string: "internal://local/about/home")
-
-        if newTabPage == .homePage, let customHomepageUrl {
-            return existingTab ?? tabManager.addTab(URLRequest(url: customHomepageUrl), isPrivate: privateMode)
-        } else if newTabPage == .topSites, let homeUrl {
-            let home = existingTab ?? tabManager.addTab(isPrivate: privateMode)
-            home.loadRequest(PrivilegedRequest(url: homeUrl) as URLRequest)
-            home.url = homeUrl
-            return home
-        }
-
-        return tabManager.selectedTab ?? tabManager.addTab()
     }
 }

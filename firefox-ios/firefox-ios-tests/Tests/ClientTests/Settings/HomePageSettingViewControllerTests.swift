@@ -156,7 +156,83 @@ final class HomePageSettingViewControllerTests: XCTestCase, FeatureFlagTestUtili
         XCTAssertLessThan(trackerBlockerModuleIndex, jumpBackInIndex)
     }
 
+    func testHomepageSettings_generateSettings_openingScreenOptions_areOrderedWithClosingTabsBelowHomepage() throws {
+        let subject = createSubject()
+        subject.profile = mockProfile
+
+        let titles = try openingScreenOptions(in: subject).map { $0.title?.string }
+
+        XCTAssertEqual(titles, [
+            .Settings.Homepage.StartAtHome.Always,
+            .Settings.Homepage.StartAtHome.AlwaysClosingTabs,
+            .Settings.Homepage.StartAtHome.Never,
+            .Settings.Homepage.StartAtHome.AfterFourHours
+        ])
+    }
+
+    func testHomepageSettings_selectingAlwaysClosingTabs_setsAlwaysAndCloseTabsOnLaunch() throws {
+        let subject = createSubject()
+        subject.profile = mockProfile
+        let options = try openingScreenOptions(in: subject)
+
+        options[1].onChecked()
+
+        XCTAssertEqual(mockProfile.prefs.stringForKey(PrefsKeys.FeatureFlags.StartAtHome),
+                       StartAtHomeSetting.always.rawValue)
+        XCTAssertEqual(mockProfile.prefs.boolForKey(PrefsKeys.Settings.closeTabsOnLaunch), true)
+        XCTAssertFalse(options[0].isChecked())
+        XCTAssertTrue(options[1].isChecked())
+    }
+
+    func testHomepageSettings_selectingHomepage_afterAlwaysClosingTabs_turnsOffCloseTabsOnLaunch() throws {
+        let subject = createSubject()
+        subject.profile = mockProfile
+        let options = try openingScreenOptions(in: subject)
+
+        options[1].onChecked()
+        options[0].onChecked()
+
+        XCTAssertEqual(mockProfile.prefs.stringForKey(PrefsKeys.FeatureFlags.StartAtHome),
+                       StartAtHomeSetting.always.rawValue)
+        XCTAssertEqual(mockProfile.prefs.boolForKey(PrefsKeys.Settings.closeTabsOnLaunch), false)
+        XCTAssertTrue(options[0].isChecked())
+        XCTAssertFalse(options[1].isChecked())
+    }
+
+    func testHomepageSettings_selectingLastTab_afterAlwaysClosingTabs_turnsOffCloseTabsOnLaunch() throws {
+        let subject = createSubject()
+        subject.profile = mockProfile
+        let options = try openingScreenOptions(in: subject)
+
+        options[1].onChecked()
+        options[2].onChecked()
+
+        XCTAssertEqual(mockProfile.prefs.stringForKey(PrefsKeys.FeatureFlags.StartAtHome),
+                       StartAtHomeSetting.disabled.rawValue)
+        XCTAssertEqual(mockProfile.prefs.boolForKey(PrefsKeys.Settings.closeTabsOnLaunch), false)
+        XCTAssertFalse(options[1].isChecked())
+    }
+
+    func testHomepageSettings_generateSettings_withCloseTabsOnLaunchPref_checksAlwaysClosingTabs() throws {
+        mockProfile.prefs.setString(StartAtHomeSetting.always.rawValue, forKey: PrefsKeys.FeatureFlags.StartAtHome)
+        mockProfile.prefs.setBool(true, forKey: PrefsKeys.Settings.closeTabsOnLaunch)
+        let subject = createSubject()
+        subject.profile = mockProfile
+
+        let options = try openingScreenOptions(in: subject)
+
+        XCTAssertEqual(options.map { $0.isChecked() }, [false, true, false, false])
+    }
+
     // MARK: - Helpers
+
+    private func openingScreenOptions(in subject: HomePageSettingViewController) throws -> [CheckmarkSetting] {
+        let openingScreenSettingsList = try XCTUnwrap(subject.generateSettings().first(
+            where: {
+                $0.title?.string == .Settings.Homepage.StartAtHome.SectionTitle
+            }))
+        return openingScreenSettingsList.children.compactMap { $0 as? CheckmarkSetting }
+    }
 
     private func createSubject() -> HomePageSettingViewController {
         let subject = HomePageSettingViewController(prefs: mockProfile.prefs,

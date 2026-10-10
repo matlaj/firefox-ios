@@ -158,17 +158,49 @@ final class TabRestorerTests: XCTestCase {
                        [firstId.uuidString, secondId.uuidString, thirdId.uuidString])
     }
 
+    func testRestoreTabs_returnsEmptyResult_whenShouldClearAllTabs() async {
+        mockDataStore.fetchTabWindowData = WindowData(
+            id: UUID(),
+            activeTabId: UUID(),
+            tabData: [makeTabData(), makeTabData()]
+        )
+        let subject = createSubject(shouldClearAllTabs: true)
+
+        let result = await subject.restoreTabs(for: .XCTestDefaultUUID)
+
+        XCTAssertEqual(mockDataStore.fetchWindowDataCalledCount, 0)
+        XCTAssertTrue(result.restoredTabs.isEmpty)
+        XCTAssertNil(result.selectedTabUUID)
+        XCTAssertEqual(result.windowUUID, WindowUUID.XCTestDefaultUUID)
+    }
+
+    func testRestoreTabs_clearsPrivateTabs_whenShouldClearAllTabsAndKeepPrivateTabs() async {
+        mockDataStore.fetchTabWindowData = WindowData(
+            id: UUID(),
+            activeTabId: UUID(),
+            tabData: [makeTabData(isPrivate: true), makeTabData(isPrivate: true)]
+        )
+        let subject = createSubject(shouldClearPrivateTabs: false, shouldClearAllTabs: true)
+
+        let result = await subject.restoreTabs(for: .XCTestDefaultUUID)
+
+        XCTAssertTrue(result.restoredTabs.isEmpty)
+        XCTAssertTrue(mockDelegate.createdTabs.isEmpty)
+    }
+
     // MARK: - Helpers
 
     private func createSubject(shouldClearPrivateTabs: Bool = true,
                                isNew: Bool = false,
+                               shouldClearAllTabs: Bool = false,
                                file: StaticString = #filePath,
                                line: UInt = #line) -> DefaultTabRestorer {
         let subject = DefaultTabRestorer(
             delegate: mockDelegate,
             tabDataStore: mockDataStore,
             shouldClearPrivateTabs: shouldClearPrivateTabs,
-            windowIsNew: isNew
+            windowIsNew: isNew,
+            shouldClearAllTabs: shouldClearAllTabs
         )
         trackForMemoryLeaks(subject, file: file, line: line)
         return subject

@@ -13,7 +13,7 @@ class OpeningScreenTests: BaseTestCase {
     private var tabTrayScreen: TabTrayScreen!
     private var toolbarScreen: ToolbarScreen!
 
-    private let startAtHomeTests = ["testHomepageOnOpeningScreen"]
+    private let startAtHomeTests = ["testHomepageOnOpeningScreen", "testHomepageClosingAllPreviousTabsOnOpeningScreen"]
 
     override func setUp() async throws {
         if startAtHomeTests.contains(where: name.contains) {
@@ -76,5 +76,48 @@ class OpeningScreenTests: BaseTestCase {
         homePageScreen.assertHomepageIsDisplayed()
         toolbarScreen.tapOnTabsButton()
         tabTrayScreen.assertTabCount(3)
+    }
+
+    func testHomepageClosingAllPreviousTabsOnOpeningScreen() {
+        // Workaround: prefs and saved tabs written during the first session, launched with a
+        // cleared profile, are gone after the first force close, so the relaunch would start
+        // clean whether or not the tabs were closed. Relaunching once first means everything
+        // below is written in a session whose writes survive. Remove once that is fixed.
+        forceCloseAndRelaunchApp()
+
+        // Select Homepage, closing all previous tabs as the opening screen
+        navigator.nowAt(NewTabScreen)
+        navigator.goto(HomeSettings)
+        settingsHomepageScreen.selectHomepageClosingAllPreviousTabsAsOpeningScreen()
+        navigator.goto(SettingsScreen)
+        navigator.goto(NewTabScreen)
+
+        // Open a web page
+        browserScreen.navigateToURL(path(forTestPage: TestPages.mozillaOrg))
+        waitUntilPageLoad()
+        browserScreen.assertAddressBarContains(value: "localhost")
+
+        // Background and foreground Firefox: it was not closed, so the tab with the web page is
+        // kept and the homepage is displayed next to it, as with the Homepage option
+        restartInBackground(inactiveFor: startAtHomeInactivityWait)
+        homePageScreen.assertHomepageIsDisplayed()
+        toolbarScreen.assertTabsButtonValue(expectedCount: "2", message: "The tab with the web page was not kept")
+
+        // Fully close Firefox and relaunch it: the previous tabs are closed and only the homepage
+        // is left. Swiping it away in the app switcher only backgrounds it under XCUITest.
+        forceCloseAndRelaunchApp(inactiveFor: startAtHomeInactivityWait)
+        homePageScreen.assertHomepageIsDisplayed()
+        toolbarScreen.assertTabsButtonValue(expectedCount: "1", message: "The previous tabs were not closed")
+
+        // Switch back to Homepage, which keeps tabs, then close and relaunch again: the closed
+        // tabs must not come back from disk
+        navigator.nowAt(NewTabScreen)
+        navigator.goto(HomeSettings)
+        settingsHomepageScreen.selectHomepageAsOpeningScreen()
+        navigator.goto(SettingsScreen)
+        navigator.goto(NewTabScreen)
+        forceCloseAndRelaunchApp(inactiveFor: startAtHomeInactivityWait)
+        homePageScreen.assertHomepageIsDisplayed()
+        toolbarScreen.assertTabsButtonValue(expectedCount: "1", message: "The closed tabs were restored")
     }
 }

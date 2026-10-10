@@ -3349,6 +3349,11 @@ extension String {
                     tableName: nil,
                     value: "Last tab",
                     comment: "In the settings menu, on the Start at Home homepage customization option, this allows users to set this setting to return to the last tab they were on, every time they open up Firefox")
+                public static let AlwaysClosingTabs = MZLocalizedString(
+                    key: "Settings.Home.Option.StartAtHome.AlwaysClosingTabs.v159",
+                    tableName: "Settings",
+                    value: "Homepage, closing all previous tabs",
+                    comment: "In the settings menu, in the Opening screen section of the Homepage settings, this option shows the Homepage and closes all previous tabs each time Firefox starts after being fully closed, including after iOS closes it in the background. When the user returns to Firefox while it is still running, it behaves like the Homepage option.")
             }
 
             public struct Wallpaper {

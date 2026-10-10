@@ -13,6 +13,7 @@ import protocol Storage.DiskImageStore
 final class TabManagerImplementation: NSObject,
                                       TabManager,
                                       FeatureFlaggable,
+                                      UserFeaturePreferenceProvider,
                                       TabRestorerDelegate {
     let windowUUID: WindowUUID
 
@@ -80,6 +81,7 @@ final class TabManagerImplementation: NSObject,
     private let windowManager: WindowManager
     private let windowIsNew: Bool
     private let profile: Profile
+    private let launchTracker: TabRestoreLaunchTracking
     private weak var navigationDelegate: WKNavigationDelegate?
     private var tabsTelemetry = TabsTelemetry()
     private var delegates = [WeakTabManagerDelegate]()
@@ -89,6 +91,8 @@ final class TabManagerImplementation: NSObject,
     private lazy var tabConfigurationProvider = {
         return TabConfigurationProvider(profile: profile, tabManager: self)
     }()
+
+    private lazy var homepageTabProvider: HomepageTabProviding = DefaultHomepageTabProvider(prefs: profile.prefs)
 
     private var selectedTabUUID: UUID? {
         guard let selectedTab = self.selectedTab,
@@ -104,6 +108,13 @@ final class TabManagerImplementation: NSObject,
         return profile.prefs.boolForKey(PrefsKeys.Settings.closePrivateTabs) ?? true
     }
 
+    /// Requires the Opening Screen setting to also be Homepage, so tabs are only closed while
+    /// "Homepage, closing all previous tabs" is the option shown as selected in settings.
+    private var isCloseTabsOnLaunchEnabled: Bool {
+        let isEnabled = profile.prefs.boolForKey(PrefsKeys.Settings.closeTabsOnLaunch) ?? false
+        return isEnabled && userPreferences.startAtHomeSetting == .always
+    }
+
     init(profile: Profile,
          imageStore: DiskImageStore = AppContainer.shared.resolve(),
          logger: Logger = DefaultLogger.shared,
@@ -112,6 +123,8 @@ final class TabManagerImplementation: NSObject,
          tabSessionStore: TabSessionStore = DefaultTabSessionStore(),
          notificationCenter: NotificationProtocol = NotificationCenter.default,
          windowManager: WindowManager = AppContainer.shared.resolve(),
+         launchTracker: TabRestoreLaunchTracking = DefaultTabRestoreLaunchTracker.shared,
+         homepageTabProvider: HomepageTabProviding? = nil,
          tabs: [Tab] = []
     ) {
         let dataStore =  tabDataStore ?? DefaultTabDataStore(logger: logger, fileManager: DefaultTabFileManager())
@@ -124,9 +137,14 @@ final class TabManagerImplementation: NSObject,
         self.windowUUID = uuid.uuid
         self.profile = profile
         self.logger = logger
+        self.launchTracker = launchTracker
         self.tabs = tabs
 
         super.init()
+
+        if let homepageTabProvider {
+            self.homepageTabProvider = homepageTabProvider
+        }
 
         GlobalTabEventHandlers.configure(with: profile)
 
@@ -452,10 +470,11 @@ final class TabManagerImplementation: NSObject,
             return
         }
 
+        let shouldClearAllTabs = shouldClearAllTabsOnRestore()
         isRestoringTabs = true
         AppEventQueue.started(.tabRestoration(windowUUID))
 
-        startLegacyRestoreTabsTask()
+        startLegacyRestoreTabsTask(shouldClearAllTabs: shouldClearAllTabs)
     }
 
     /// Snapshot-and-merge restore path used when the deeplink-optimization refactor is enabled.
@@ -483,6 +502,7 @@ final class TabManagerImplementation: NSObject,
             return
         }
 
+        let shouldClearAllTabs = shouldClearAllTabsOnRestore()
         isRestoringTabs = true
         AppEventQueue.started(.tabRestoration(windowUUID))
 
@@ -492,12 +512,13 @@ final class TabManagerImplementation: NSObject,
             tabDataStore: tabDataStore,
             shouldClearPrivateTabs: shouldClearPrivateTabs,
             windowIsNew: windowIsNew,
+            shouldClearAllTabs: shouldClearAllTabs,
             logger: logger
         )
 
         Task { @MainActor in
             let result = await restorer.restoreTabs(for: windowUUID)
-            applyRestorationResult(result, preRestoreTabs: preRestoreTabs)
+            applyRestorationResult(result, preRestoreTabs: preRestoreTabs, shouldClearAllTabs: shouldClearAllTabs)
             TabErrorTelemetryHelper.shared.validateTabCountAfterRestoringTabs(windowUUID)
             logger.log("Tabs restore ended using TabRestorer", level: .debug, category: .tabs)
             logger.log("Normal tabs count; \(normalTabs.count), Private tabs count; \(privateTabs.count)",
@@ -513,6 +534,17 @@ final class TabManagerImplementation: NSObject,
 
         AppEventQueue.started(event)
         AppEventQueue.completed(event)
+    }
+
+    /// Registers the restore with `launchTracker` even when the setting is off, so that turning the
+    /// setting on later in the same process doesn't clear a window that has already been restored.
+    private func shouldClearAllTabsOnRestore() -> Bool {
+        let isFirstRestore = launchTracker.registerRestore(for: windowUUID)
+        return isFirstRestore && !windowIsNew && isCloseTabsOnLaunchEnabled
+    }
+
+    private func selectLaunchHomepageTab() {
+        selectTab(homepageTabProvider.homepageTab(in: self, reusing: nil, isPrivate: false) ?? addTab())
     }
 
     private func ensureAtLeastOneSelectedTab() {
@@ -571,22 +603,34 @@ final class TabManagerImplementation: NSObject,
         }
     }
 
-    private func startLegacyRestoreTabsTask() {
+    private func startLegacyRestoreTabsTask(shouldClearAllTabs: Bool) {
         Task { @MainActor in
             // Only attempt a tab data store fetch if we know we should have tabs on disk (ignore new windows)
-            let windowData: WindowData? = windowIsNew ? nil : await tabDataStore.fetchWindowData(uuid: windowUUID)
-            legacyBuildTabRestore(window: windowData)
+            let shouldFetch = !windowIsNew && !shouldClearAllTabs
+            let windowData: WindowData? = shouldFetch ? await tabDataStore.fetchWindowData(uuid: windowUUID) : nil
+            legacyBuildTabRestore(window: windowData, shouldClearAllTabs: shouldClearAllTabs)
             TabErrorTelemetryHelper.shared.validateTabCountAfterRestoringTabs(windowUUID)
             logger.log("Tabs restore ended after fetching window data", level: .debug, category: .tabs)
             logger.log("Normal tabs count; \(normalTabs.count), Private tabs count; \(privateTabs.count)", level: .debug, category: .tabs)
         }
     }
 
-    private func legacyBuildTabRestore(window: WindowData?) {
+    private func legacyBuildTabRestore(window: WindowData?, shouldClearAllTabs: Bool) {
         defer {
             isRestoringTabs = false
             tabRestoreHasFinished = true
             AppEventQueue.completed(.tabRestoration(windowUUID))
+        }
+
+        if shouldClearAllTabs {
+            if !AppEventQueue.activityIsInProgress(.pendingDeeplinkTab(windowUUID)) {
+                selectLaunchHomepageTab()
+                preserveTabs(forced: true)
+            }
+            cleanUpUnusedScreenshots()
+            cleanUpTabSessionData()
+            logger.log("Not restoring tabs: close tabs on launch enabled", level: .info, category: .tabs)
+            return
         }
 
         let nonPrivateTabs = window?.tabData.filter { !$0.isPrivate }
@@ -646,7 +690,9 @@ final class TabManagerImplementation: NSObject,
     /// (tabs added before restoration ran, e.g. a deeplink tab) at the end of the array so they
     /// always land last. Picks a selected tab from the restoration result when available, falling
     /// back to the most recent normal tab or a freshly created one.
-    private func applyRestorationResult(_ result: TabRestorationResult, preRestoreTabs: [Tab]) {
+    private func applyRestorationResult(_ result: TabRestorationResult,
+                                        preRestoreTabs: [Tab],
+                                        shouldClearAllTabs: Bool) {
         defer {
             isRestoringTabs = false
             tabRestoreHasFinished = true
@@ -663,7 +709,19 @@ final class TabManagerImplementation: NSObject,
         let tabToSelect: Tab? = result.selectedTabUUID.flatMap { uuid in
             result.restoredTabs.first(where: { $0.tabUUID == uuid })
         }
-        handleTabSelectionAfterRestore(tabToSelect: tabToSelect)
+        if shouldClearAllTabs,
+           tabs.isEmpty,
+           !AppEventQueue.activityIsInProgress(.pendingDeeplinkTab(windowUUID)) {
+            selectLaunchHomepageTab()
+        } else {
+            handleTabSelectionAfterRestore(tabToSelect: tabToSelect)
+        }
+
+        if shouldClearAllTabs, !tabs.isEmpty {
+            // Overwrite the skipped tabs on disk right away; `preserveTabs(immediate:)` is a no-op until
+            // the restore has finished, and a lone homepage tab is never saved on resign active.
+            preserveTabs(forced: true)
+        }
 
         cleanUpUnusedScreenshots()
         cleanUpTabSessionData()

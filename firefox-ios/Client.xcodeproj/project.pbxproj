@@ -969,6 +969,7 @@
 		8A2DAD4B2CC02AA00067ECD0 /* LabelButtonHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2DAD4A2CC02AA00067ECD0 /* LabelButtonHeaderView.swift */; };
 		8A2DAD4D2CC02AA10067ECD0 /* LabelButtonHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2DAD4C2CC02AA10067ECD0 /* LabelButtonHeaderCell.swift */; };
 		8A2F21C62DEDC17900C9F4DE /* StartAtHomeMiddlewareTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2F21C52DEDC17200C9F4DE /* StartAtHomeMiddlewareTests.swift */; };
+		D9525A66C4FA94BE78E8B77C /* HomepageTabProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D0DBF7FFD082968EB40AB7 /* HomepageTabProviderTests.swift */; };
 		8A2F21CB2DEDC2AB00C9F4DE /* StartAtHomeAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2F21CA2DEDC2A800C9F4DE /* StartAtHomeAction.swift */; };
 		8A3233FC286270CF003E1C33 /* FxBookmarkNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A3233FB286270CF003E1C33 /* FxBookmarkNode.swift */; };
 		8A3233FE28627446003E1C33 /* LocalDesktopFolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A3233FD28627446003E1C33 /* LocalDesktopFolder.swift */; };
@@ -994,8 +995,12 @@
 		8A3EF8152A2FD08800796E3A /* OpenFiftyTabsDebugOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A3EF8142A2FD08800796E3A /* OpenFiftyTabsDebugOption.swift */; };
 		8A3EF8172A2FD2B900796E3A /* AdvancedAccountSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A3EF8162A2FD2B900796E3A /* AdvancedAccountSettings.swift */; };
 		8A3F08AC2FB40B8B001F5DE9 /* TabRestorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A3F08AB2FB40B8B001F5DE9 /* TabRestorer.swift */; };
+		FDCDD8927343C12432B70ACE /* TabRestoreLaunchTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E7ADBC71E98D1364C9787CF /* TabRestoreLaunchTracker.swift */; };
 		8A3F08AE2FB40BD0001F5DE9 /* TabRestorerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A3F08AD2FB40BD0001F5DE9 /* TabRestorerTests.swift */; };
+		F20B6FA316A6B3ED14D58B8F /* TabRestoreLaunchTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0885161FD15D7340CC5650D /* TabRestoreLaunchTrackerTests.swift */; };
 		8A3F08B02FB40BDC001F5DE9 /* MockTabRestorerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A3F08AF2FB40BDC001F5DE9 /* MockTabRestorerDelegate.swift */; };
+		C10A3E8E8BC9E9F7D716F546 /* MockHomepageTabProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CF9E804684EE26A93F31D9A /* MockHomepageTabProvider.swift */; };
+		1B9A44846DCE11B51F076795 /* MockTabRestoreLaunchTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D86160CD329C31CBAAA61D8 /* MockTabRestoreLaunchTracker.swift */; };
 		8A3FD2902FABB9BA001F5DE9 /* TabManagerClearHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A3FD28D2FABB9BA001F5DE9 /* TabManagerClearHistoryTests.swift */; };
 		8A3FD2912FABB9BA001F5DE9 /* TabManagerGetTabTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A3FD28E2FABB9BA001F5DE9 /* TabManagerGetTabTests.swift */; };
 		8A3FD2922FABB9BA001F5DE9 /* TabManagerReorderTabsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A3FD28F2FABB9BA001F5DE9 /* TabManagerReorderTabsTests.swift */; };
@@ -1094,6 +1099,7 @@
 		8A732A822DE8AFD40099F575 /* FxSuggestTelemetry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A732A812DE8AFCA0099F575 /* FxSuggestTelemetry.swift */; };
 		8A7368AD27924AAF005D7704 /* CanRemoveQuickActionBookmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7368AC27924AAF005D7704 /* CanRemoveQuickActionBookmark.swift */; };
 		8A75AF9C2DE8A1CF00B2C592 /* StartAtHomeMiddleware.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A75AF9B2DE8A1C700B2C592 /* StartAtHomeMiddleware.swift */; };
+		FDAAB81ED5AAF68E391B7040 /* HomepageTabProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1A594834A510C6242420F4 /* HomepageTabProvider.swift */; };
 		8A7653C528A2E69100924ABF /* MockMerinoAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7653C328A2E68B00924ABF /* MockMerinoAPI.swift */; };
 		8A76B01629F6EB3900A82607 /* ScreenshotService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A76B01529F6EB3900A82607 /* ScreenshotService.swift */; };
 		8A7835332D50FEFF0052E328 /* BookmarksMiddleware.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7835322D50FEFC0052E328 /* BookmarksMiddleware.swift */; };
@@ -10088,6 +10094,7 @@
 		8A2DAD4A2CC02AA00067ECD0 /* LabelButtonHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelButtonHeaderView.swift; sourceTree = "<group>"; };
 		8A2DAD4C2CC02AA10067ECD0 /* LabelButtonHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelButtonHeaderCell.swift; sourceTree = "<group>"; };
 		8A2F21C52DEDC17200C9F4DE /* StartAtHomeMiddlewareTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartAtHomeMiddlewareTests.swift; sourceTree = "<group>"; };
+		84D0DBF7FFD082968EB40AB7 /* HomepageTabProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomepageTabProviderTests.swift; sourceTree = "<group>"; };
 		8A2F21CA2DEDC2A800C9F4DE /* StartAtHomeAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartAtHomeAction.swift; sourceTree = "<group>"; };
 		8A3233FB286270CF003E1C33 /* FxBookmarkNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FxBookmarkNode.swift; sourceTree = "<group>"; };
 		8A3233FD28627446003E1C33 /* LocalDesktopFolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalDesktopFolder.swift; sourceTree = "<group>"; };
@@ -10113,8 +10120,12 @@
 		8A3EF8142A2FD08800796E3A /* OpenFiftyTabsDebugOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenFiftyTabsDebugOption.swift; sourceTree = "<group>"; };
 		8A3EF8162A2FD2B900796E3A /* AdvancedAccountSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedAccountSettings.swift; sourceTree = "<group>"; };
 		8A3F08AB2FB40B8B001F5DE9 /* TabRestorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabRestorer.swift; sourceTree = "<group>"; };
+		9E7ADBC71E98D1364C9787CF /* TabRestoreLaunchTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabRestoreLaunchTracker.swift; sourceTree = "<group>"; };
 		8A3F08AD2FB40BD0001F5DE9 /* TabRestorerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabRestorerTests.swift; sourceTree = "<group>"; };
+		E0885161FD15D7340CC5650D /* TabRestoreLaunchTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabRestoreLaunchTrackerTests.swift; sourceTree = "<group>"; };
 		8A3F08AF2FB40BDC001F5DE9 /* MockTabRestorerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTabRestorerDelegate.swift; sourceTree = "<group>"; };
+		4CF9E804684EE26A93F31D9A /* MockHomepageTabProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockHomepageTabProvider.swift; sourceTree = "<group>"; };
+		7D86160CD329C31CBAAA61D8 /* MockTabRestoreLaunchTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTabRestoreLaunchTracker.swift; sourceTree = "<group>"; };
 		8A3FD28D2FABB9BA001F5DE9 /* TabManagerClearHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabManagerClearHistoryTests.swift; sourceTree = "<group>"; };
 		8A3FD28E2FABB9BA001F5DE9 /* TabManagerGetTabTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabManagerGetTabTests.swift; sourceTree = "<group>"; };
 		8A3FD28F2FABB9BA001F5DE9 /* TabManagerReorderTabsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabManagerReorderTabsTests.swift; sourceTree = "<group>"; };
@@ -10210,6 +10221,7 @@
 		8A732A812DE8AFCA0099F575 /* FxSuggestTelemetry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FxSuggestTelemetry.swift; sourceTree = "<group>"; };
 		8A7368AC27924AAF005D7704 /* CanRemoveQuickActionBookmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanRemoveQuickActionBookmark.swift; sourceTree = "<group>"; };
 		8A75AF9B2DE8A1C700B2C592 /* StartAtHomeMiddleware.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartAtHomeMiddleware.swift; sourceTree = "<group>"; };
+		5B1A594834A510C6242420F4 /* HomepageTabProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomepageTabProvider.swift; sourceTree = "<group>"; };
 		8A75F1D428B56A2C0054E34D /* af */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = af; path = af.lproj/WidgetIntents.strings; sourceTree = "<group>"; };
 		8A75F1D628B56A6C0054E34D /* anp */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = anp; path = anp.lproj/WidgetIntents.strings; sourceTree = "<group>"; };
 		8A75F1D828B56A880054E34D /* an */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = an; path = an.lproj/WidgetIntents.strings; sourceTree = "<group>"; };
@@ -14175,6 +14187,8 @@
 				5A475E9029DB8AA7009C13FD /* MockDiskImageStore.swift */,
 				5A475E8C29DB888E009C13FD /* MockTabDataStore.swift */,
 				8A3F08AF2FB40BDC001F5DE9 /* MockTabRestorerDelegate.swift */,
+				4CF9E804684EE26A93F31D9A /* MockHomepageTabProvider.swift */,
+				7D86160CD329C31CBAAA61D8 /* MockTabRestoreLaunchTracker.swift */,
 				5AC7110629F822E60011ED11 /* MockTabSessionStore.swift */,
 			);
 			path = Mocks;
@@ -14642,6 +14656,7 @@
 			children = (
 				213B67A727CE721E000542F5 /* StartAtHomeHelperTests.swift */,
 				8A2F21C52DEDC17200C9F4DE /* StartAtHomeMiddlewareTests.swift */,
+				84D0DBF7FFD082968EB40AB7 /* HomepageTabProviderTests.swift */,
 			);
 			path = StartAtHome;
 			sourceTree = "<group>";
@@ -14651,6 +14666,7 @@
 			children = (
 				8A2F21CA2DEDC2A800C9F4DE /* StartAtHomeAction.swift */,
 				8A75AF9B2DE8A1C700B2C592 /* StartAtHomeMiddleware.swift */,
+				5B1A594834A510C6242420F4 /* HomepageTabProvider.swift */,
 				213B67A527CE682B000542F5 /* StartAtHomeHelper.swift */,
 			);
 			path = StartAtHome;
@@ -14857,6 +14873,7 @@
 				5A8017DF29CE15D90047120D /* TabManagerImplementation.swift */,
 				8A3FF9CB2FB408A1001F5DE9 /* TabRestorationResult.swift */,
 				8A3F08AB2FB40B8B001F5DE9 /* TabRestorer.swift */,
+				9E7ADBC71E98D1364C9787CF /* TabRestoreLaunchTracker.swift */,
 				8A3FF9CC2FB408A1001F5DE9 /* TabRestorerDelegate.swift */,
 				8A0A7C3F2F61F03200D00820 /* TabWebView.swift */,
 				BD0D40792D83124E00C38511 /* TabWebViewPreview.swift */,
@@ -15516,6 +15533,7 @@
 				5A475E8929DB87F2009C13FD /* TabManagerTests.swift */,
 				8AFC09562FA54A240070CA11 /* TabManagerTestsBase.swift */,
 				8A3F08AD2FB40BD0001F5DE9 /* TabRestorerTests.swift */,
+				E0885161FD15D7340CC5650D /* TabRestoreLaunchTrackerTests.swift */,
 				8AD08D1627E91AC800B8E907 /* TabsTelemetryTests.swift */,
 			);
 			path = TabManagement;
@@ -20178,6 +20196,7 @@
 				8AF347DE2CADD1B200624036 /* HomepageState.swift in Sources */,
 				8AF347E02CADD1B200624036 /* HomepageTelemetryState.swift in Sources */,
 				8A75AF9C2DE8A1CF00B2C592 /* StartAtHomeMiddleware.swift in Sources */,
+				FDAAB81ED5AAF68E391B7040 /* HomepageTabProvider.swift in Sources */,
 				C8DC90C92A0675E70008832B /* MarkupParsingUtility.swift in Sources */,
 				CA03B26A247F1D9E00382B62 /* BreachAlertsClient.swift in Sources */,
 				8A3EF8072A2FCFF700796E3A /* SentryIDSetting.swift in Sources */,
@@ -20453,6 +20472,7 @@
 				D3BA7E0E1B0E934F00153782 /* ContextMenuHelper.swift in Sources */,
 				8AC0B1C02D1D935C004237FD /* ContextMenuConfiguration.swift in Sources */,
 				8A3F08AC2FB40B8B001F5DE9 /* TabRestorer.swift in Sources */,
+				FDCDD8927343C12432B70ACE /* TabRestoreLaunchTracker.swift in Sources */,
 				8A0A7C2D2F61E3E600D00820 /* TabContentScriptManager.swift in Sources */,
 				BCB769192E4F80650046AA37 /* StylingViewModifiers.swift in Sources */,
 				BD011FB82D89B0D400FE1A32 /* TabSwipeGestureHandler.swift in Sources */,
@@ -21262,6 +21282,7 @@
 				8A28C628291028870078A81A /* CanRemoveQuickActionBookmarkTests.swift in Sources */,
 				21365E3E2F314D1D0000C369 /* BrowserViewControllerLayoutManagerTests.swift in Sources */,
 				8A2F21C62DEDC17900C9F4DE /* StartAtHomeMiddlewareTests.swift in Sources */,
+				D9525A66C4FA94BE78E8B77C /* HomepageTabProviderTests.swift in Sources */,
 				03CCC9181AF05E7300DBF30D /* RelativeDatesTests.swift in Sources */,
 				F84B21DA1A090F8100AAB793 /* ClientTests.swift in Sources */,
 				81DAB2F12C88F02500F4BE98 /* MainMenuViewControllerTests.swift in Sources */,
@@ -21431,6 +21452,8 @@
 				1D4D79462BF2F4E7007C6796 /* SimpleTab.swift in Sources */,
 				ECF75D3C301930E2008183CA /* MockGroupedParentFolderSelector.swift in Sources */,
 				8A3F08B02FB40BDC001F5DE9 /* MockTabRestorerDelegate.swift in Sources */,
+				C10A3E8E8BC9E9F7D716F546 /* MockHomepageTabProvider.swift in Sources */,
+				1B9A44846DCE11B51F076795 /* MockTabRestoreLaunchTracker.swift in Sources */,
 				ECF75D3E30193E9A008183CA /* GroupedEditBookmarkViewModelTests.swift in Sources */,
 				21E78A7028F9A8C500F8D687 /* MockUIDevice.swift in Sources */,
 				C27EF6152EBA2EE500BED719 /* LanguageDetectorTests.swift in Sources */,
@@ -21780,6 +21803,7 @@
 				8A552AC82CB43AB400564C98 /* HeaderStateTests.swift in Sources */,
 				8AFC4E472CAF53E100C54B43 /* RemoteDataTypeTests.swift in Sources */,
 				8A3F08AE2FB40BD0001F5DE9 /* TabRestorerTests.swift in Sources */,
+				F20B6FA316A6B3ED14D58B8F /* TabRestoreLaunchTrackerTests.swift in Sources */,
 				8A7AF0C72C9A119A009691B5 /* TabPeekStateTests.swift in Sources */,
 				0AFF7F642C7784D600265214 /* MockDataCleaner.swift in Sources */,
 				EDADF77F2D70D35B00C39295 /* AppIconSelectionTelemetryTests.swift in Sources */,

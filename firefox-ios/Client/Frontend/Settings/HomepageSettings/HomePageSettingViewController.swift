@@ -14,6 +14,7 @@ final class HomePageSettingViewController: SettingsTableViewController,
     let prefs: Prefs
     var currentNewTabChoice: NewTabPage?
     var currentStartAtHomeSetting: StartAtHomeSetting?
+    var isCloseTabsOnLaunchSelected = false
     var hasHomePage = false
 
     var isPocketSectionEnabled: Bool {
@@ -211,6 +212,7 @@ final class HomePageSettingViewController: SettingsTableViewController,
     private func setupStartAtHomeSection() -> SettingSection {
         let pref = userPreferences.startAtHomeSetting
         currentStartAtHomeSetting = StartAtHomeSetting(rawValue: pref.rawValue) ?? .disabled
+        isCloseTabsOnLaunchSelected = prefs.boolForKey(PrefsKeys.Settings.closeTabsOnLaunch) ?? false
 
         typealias a11y = AccessibilityIdentifiers.Settings.Homepage.StartAtHome
 
@@ -222,6 +224,8 @@ final class HomePageSettingViewController: SettingsTableViewController,
             self?.prefs.setString(newOption.rawValue, forKey: PrefsKeys.FeatureFlags.StartAtHome)
             self?.tableView.reloadData()
 
+            // Switching between the two Homepage options only changes the close tabs on launch pref
+            guard newOption != previousOption else { return }
             SettingsTelemetry().changedSetting(
                 PrefsKeys.FeatureFlags.StartAtHome,
                 to: newOption.rawValue,
@@ -237,6 +241,7 @@ final class HomePageSettingViewController: SettingsTableViewController,
             onChecked: { [weak self] in
                 let previousOption = self?.currentStartAtHomeSetting
                 self?.currentStartAtHomeSetting = .afterFourHours
+                self?.setCloseTabsOnLaunch(false)
                 onOptionSelected(true, .afterFourHours, previousOption)
             })
 
@@ -244,10 +249,29 @@ final class HomePageSettingViewController: SettingsTableViewController,
             title: NSAttributedString(string: .Settings.Homepage.StartAtHome.Always),
             subtitle: nil,
             accessibilityIdentifier: a11y.always,
-            isChecked: { [weak self] in return self?.currentStartAtHomeSetting == .always },
+            isChecked: { [weak self] in
+                return self?.currentStartAtHomeSetting == .always && self?.isCloseTabsOnLaunchSelected == false
+            },
             onChecked: { [weak self] in
                 let previousOption = self?.currentStartAtHomeSetting
                 self?.currentStartAtHomeSetting = .always
+                self?.setCloseTabsOnLaunch(false)
+                onOptionSelected(true, .always, previousOption)
+            })
+
+        // Stored as Start at Home `.always` plus the close tabs on launch pref, so that warm resumes
+        // behave like the Homepage option and the Nimbus-backed `StartAtHome` values stay unchanged.
+        let alwaysClosingTabsOption = CheckmarkSetting(
+            title: NSAttributedString(string: .Settings.Homepage.StartAtHome.AlwaysClosingTabs),
+            subtitle: nil,
+            accessibilityIdentifier: a11y.alwaysClosingTabs,
+            isChecked: { [weak self] in
+                return self?.currentStartAtHomeSetting == .always && self?.isCloseTabsOnLaunchSelected == true
+            },
+            onChecked: { [weak self] in
+                let previousOption = self?.currentStartAtHomeSetting
+                self?.currentStartAtHomeSetting = .always
+                self?.setCloseTabsOnLaunch(true)
                 onOptionSelected(true, .always, previousOption)
             })
 
@@ -259,6 +283,7 @@ final class HomePageSettingViewController: SettingsTableViewController,
             onChecked: { [weak self] in
                 let previousOption = self?.currentStartAtHomeSetting
                 self?.currentStartAtHomeSetting = .disabled
+                self?.setCloseTabsOnLaunch(false)
                 onOptionSelected(false, .disabled, previousOption)
             })
 
@@ -267,10 +292,23 @@ final class HomePageSettingViewController: SettingsTableViewController,
             footerTitle: NSAttributedString(
                 string: .Settings.Homepage.StartAtHome.SectionDescription
             ),
-            children: [alwaysOption, neverOption, afterFourHoursOption]
+            children: [alwaysOption, alwaysClosingTabsOption, neverOption, afterFourHoursOption]
         )
 
         return section
+    }
+
+    private func setCloseTabsOnLaunch(_ isOn: Bool) {
+        let wasOn = isCloseTabsOnLaunchSelected
+        isCloseTabsOnLaunchSelected = isOn
+        guard isOn != wasOn else { return }
+
+        prefs.setBool(isOn, forKey: PrefsKeys.Settings.closeTabsOnLaunch)
+        SettingsTelemetry().changedSetting(
+            PrefsKeys.Settings.closeTabsOnLaunch,
+            to: "\(isOn)",
+            from: "\(wasOn)"
+        )
     }
 }
 

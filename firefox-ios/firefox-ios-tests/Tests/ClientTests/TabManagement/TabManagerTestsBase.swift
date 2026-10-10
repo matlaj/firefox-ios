@@ -52,6 +52,8 @@ class TabManagerTestsBase: XCTestCase {
     @MainActor
     func createSubject(tabs: [Tab] = [],
                        windowUUID: WindowUUID? = nil,
+                       launchTracker: TabRestoreLaunchTracking? = nil,
+                       homepageTabProvider: HomepageTabProviding? = nil,
                        file: StaticString = #filePath,
                        line: UInt = #line) -> TabManagerImplementation {
         let subject = TabManagerImplementation(
@@ -60,6 +62,8 @@ class TabManagerTestsBase: XCTestCase {
             uuid: ReservedWindowUUID(uuid: windowUUID ?? tabWindowUUID, isNew: false),
             tabDataStore: mockTabStore,
             tabSessionStore: mockSessionStore,
+            launchTracker: launchTracker ?? DefaultTabRestoreLaunchTracker(),
+            homepageTabProvider: homepageTabProvider,
             tabs: tabs
         )
         trackForMemoryLeaks(subject, file: file, line: line)

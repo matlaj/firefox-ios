@@ -159,6 +159,44 @@ class TelemetryWrapperTests: XCTestCase {
         XCTAssertEqual(GleanMetrics.WallpaperAnalytics.themedWallpaper[wallpaperName].testGetValue(), 1)
     }
 
+    // MARK: - Opening screen
+
+    @MainActor
+    func test_openingScreenMetric_withHomepageClosingAllPreviousTabs_recordsAlwaysClosingTabs() {
+        setOpeningScreen(.always, closeTabsOnLaunch: true)
+
+        TelemetryWrapper.shared.recordEnteredBackgroundPreferenceMetrics()
+
+        XCTAssertEqual(GleanMetrics.Preferences.openingScreen.testGetValue(), "alwaysClosingTabs")
+    }
+
+    @MainActor
+    func test_openingScreenMetric_withHomepage_recordsAlways() {
+        setOpeningScreen(.always, closeTabsOnLaunch: false)
+
+        TelemetryWrapper.shared.recordEnteredBackgroundPreferenceMetrics()
+
+        XCTAssertEqual(GleanMetrics.Preferences.openingScreen.testGetValue(), "always")
+    }
+
+    @MainActor
+    func test_openingScreenMetric_withLastTabAndCloseTabsOnLaunchPref_recordsDisabled() {
+        setOpeningScreen(.disabled, closeTabsOnLaunch: true)
+
+        TelemetryWrapper.shared.recordEnteredBackgroundPreferenceMetrics()
+
+        XCTAssertEqual(GleanMetrics.Preferences.openingScreen.testGetValue(), "disabled")
+    }
+
+    @MainActor
+    private func setOpeningScreen(_ setting: StartAtHomeSetting, closeTabsOnLaunch: Bool) {
+        // The opening screen is read through the AppContainer's preferences, so they must use `profile`
+        DependencyHelperMock().bootstrapDependencies(injectedProfile: profile)
+        TelemetryWrapper.shared.setup(profile: profile)
+        profile.prefs.setString(setting.rawValue, forKey: PrefsKeys.FeatureFlags.StartAtHome)
+        profile.prefs.setBool(closeTabsOnLaunch, forKey: PrefsKeys.Settings.closeTabsOnLaunch)
+    }
+
     // MARK: - Awesomebar result tap
     func test_AwesomebarImpressions_GleanIsCalled() throws {
         let groupsKey = TelemetryWrapper.EventExtraKey.UrlbarTelemetry.groups.rawValue

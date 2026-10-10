@@ -31,6 +31,8 @@ final class SettingsHomepageScreen {
         assertDefaultOptionsVisible()
         XCTAssertFalse(sel.START_AT_HOME_ALWAYS.element(in: app).isSelected,
                        "Homepage is selected as the opening screen")
+        XCTAssertFalse(sel.START_AT_HOME_ALWAYS_CLOSING_TABS.element(in: app).isSelected,
+                       "Homepage, closing all previous tabs is selected as the opening screen")
         XCTAssertFalse(sel.START_AT_HOME_AFTER_4H.element(in: app).isSelected,
                        "Homepage after four hours of inactivity is selected as the opening screen")
         XCTAssertTrue(sel.START_AT_HOME_DISABLED.element(in: app).isSelected,
@@ -47,6 +49,7 @@ final class SettingsHomepageScreen {
         BaseTestCase().waitForElementsToExist([
             sel.NAVBAR.element(in: app),
             sel.START_AT_HOME_ALWAYS.element(in: app),
+            sel.START_AT_HOME_ALWAYS_CLOSING_TABS.element(in: app),
             sel.START_AT_HOME_DISABLED.element(in: app)
         ])
         BaseTestCase().mozWaitForElementToExist(sel.START_AT_HOME_AFTER_4H.element(in: app))
@@ -59,18 +62,28 @@ final class SettingsHomepageScreen {
     }
 
     func assertHomepageIsSelectedAsOpeningScreen() {
-        let homepageOption = sel.START_AT_HOME_ALWAYS.element(in: app)
-        BaseTestCase().mozWaitForElementToExist(homepageOption)
+        assertOpeningScreenOptionIsSelected(sel.START_AT_HOME_ALWAYS.element(in: app),
+                                            message: "Homepage is not selected as the opening screen")
+    }
+
+    /// Selects "Homepage, closing all previous tabs" in the Opening screen section.
+    func selectHomepageClosingAllPreviousTabsAsOpeningScreen() {
+        let option = sel.START_AT_HOME_ALWAYS_CLOSING_TABS.element(in: app)
+        option.waitAndTap()
+        assertOpeningScreenOptionIsSelected(
+            option,
+            message: "Homepage, closing all previous tabs is not selected as the opening screen"
+        )
+    }
+
+    private func assertOpeningScreenOptionIsSelected(_ option: XCUIElement, message: String) {
+        BaseTestCase().mozWaitForElementToExist(option)
         // The checkmark is applied on a table reload, so the selected state settles asynchronously
         let expectation = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "isSelected == true"),
-            object: homepageOption
+            object: option
         )
-        XCTAssertEqual(
-            XCTWaiter().wait(for: [expectation], timeout: TIMEOUT),
-            .completed,
-            "Homepage is not selected as the opening screen"
-        )
+        XCTAssertEqual(XCTWaiter().wait(for: [expectation], timeout: TIMEOUT), .completed, message)
     }
 
     /// Below iOS 17 the Stories row is never added to Homepage settings, see
